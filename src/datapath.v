@@ -6,9 +6,11 @@
 // Project Name: CPU-Core
 // Target Devices: 
 // Tool Versions: 
-// Description: 
+// Description: Structural design connecting a multiplexer, accumulator, register 
+//              file, arithmetic logic unit and tri state buffer into a datapath. 
+//              2 flags and the alu output are output.
 // 
-// Dependencies: 
+// Dependencies: multiplexer, accumulator, register_file, alu, tri_state_buffer
 // 
 // Revision:
 // Revision 0.01 - File Created
@@ -27,12 +29,12 @@ module datapath(
     input [2:0] rf_address,
     input rf_write,
     input [3:0] alu_select,
-    input [1:0] alu_rotate,
+    input [1:0] alu_num_rotate,
     input output_enable,
     output [7:0] datapath_out,
     output zero_flag_out,
     output positive_flag_out,
-    output [7:0] branch_address_out
+    output [7:0] alu_result
     );
     
     wire [7:0] acc_in;
@@ -69,7 +71,7 @@ module datapath(
         .in0(acc_out),
         .in1(alu_in),
         .select(alu_select),
-        .rotate(alu_rotate),
+        .num_rotate(alu_num_rotate),
         .out(alu_out)
     );
     
@@ -81,5 +83,5 @@ module datapath(
     
     assign zero_flag_out = ~( |acc_in );  // reduction OR: |array
     assign positive_flag_out = ~acc_in[7];
-    assign branch_address_out = alu_out;
+    assign alu_result = alu_out;
 endmodule

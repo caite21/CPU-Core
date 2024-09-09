@@ -6,9 +6,10 @@
 // Project Name: CPU-Core
 // Target Devices: 
 // Tool Versions: 
-// Description: 
+// Description: Top level structural design connecting the control unit and datapath
+//              into the cpu core with a divided clock siganl. 
 // 
-// Dependencies: 
+// Dependencies: control_unit, datapath, clock_divider
 // 
 // Revision:
 // Revision 0.01 - File Created
@@ -38,16 +39,20 @@ module cpu_core(
     wire output_enable;
     wire zero_flag;
     wire positive_flag;
-    wire [1:0] alu_rotate;
-    wire [7:0] branch_address;
+    wire [1:0] alu_num_rotate;
+    wire [7:0] alu_result;
 
+    clock_divider cd (
+        .clock(clock),
+        .clock_div(clock_div)
+    );
     
     control_unit cu (
-        .clock(clock),
+        .clock(clock_div),
         .reset(reset),
         .enter(enter),
         .imm_data(imm_data),
-        .branch_address(branch_address),
+        .alu_result(alu_result),
         .positive_flag(positive_flag),
         .zero_flag(zero_flag),
         .mux_select(mux_select),
@@ -57,13 +62,13 @@ module cpu_core(
         .alu_select(alu_select),
         .output_enable(output_enable),
         .PC(PC_out),
-        .alu_rotate(alu_rotate),
+        .alu_num_rotate(alu_num_rotate),
         .OPCODE(OPCODE_out),
         .done(done)
     );
     
     datapath dp (
-        .clock(clock),
+        .clock(clock_div),
         .reset(reset),
         .mux_select(mux_select),
         .imm_data(imm_data),
@@ -72,12 +77,12 @@ module cpu_core(
         .rf_address(rf_address),
         .rf_write(rf_write),
         .alu_select(alu_select),
-        .alu_rotate(alu_rotate),
+        .alu_num_rotate(alu_num_rotate),
         .output_enable(output_enable),
         .datapath_out(CPU_out),
         .zero_flag_out(zero_flag),
         .positive_flag_out(positive_flag),
-        .branch_address_out(branch_address)
+        .alu_result(alu_result)
     );
 
 endmodule

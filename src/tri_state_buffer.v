@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Engineer: 
+// Engineer: Caite Sklar
 //  
 // Module Name: tri_state_buffer
 // Project Name: CPU-Core
@@ -23,5 +23,5 @@ module tri_state_buffer(
     output [7:0] out
     );
     
-    assign out = (enable ? in : 1'bz);
+    assign out = (enable ? in : 8'bz);
 endmodule
