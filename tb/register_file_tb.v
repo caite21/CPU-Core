@@ -8,7 +8,7 @@
 // Description: Test register_file by writing to the first and last register
 //              then read the registers and assert that the values read are 
 //              correct.
-// Dependencies: 
+// Dependencies: register_file
 // 
 // Revision:
 // Revision 0.01 - File Created
