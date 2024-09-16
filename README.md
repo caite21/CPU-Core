@@ -1,8 +1,13 @@
 # CPU-Core
 
+### Next Goals
+1. Redesign as a 16-bit CPU
+2. Pipeline instruction fetch, decode, and execution
+3. Learn and implement UVM
+4. Implement instruction-level parallelism 
+
 ### Datapath RTL Design
 ![cpu_core_datapath](https://github.com/user-attachments/assets/c184e7a6-d7f9-404d-b45d-071533afea05)
-
 
 ### Elaborated CPU Core Design
 Using Xilinx Vivado
