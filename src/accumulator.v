@@ -26,10 +26,13 @@ module accumulator(
     output reg [7:0] out
     );
     
-    always @ (posedge clock or posedge reset) begin
-        if (reset) 
-            out <= 8'b0;
-        else if (enable) 
+    always @ (posedge clock) begin
+        if (enable && ~reset) 
             out <= in;
     end
+    
+    always @ (posedge reset) begin
+        out <= 8'b0;
+    end
+    
 endmodule
