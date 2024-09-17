@@ -1,5 +1,8 @@
 # CPU-Core
 
+### Summary
+This project implements a simple 8-bit CPU core in Verilog/SystemVerilog, featuring a 3-stage control unit and a datapath that consists of a multiplexer, accumulator, register file, ALU, and tri-state buffer.
+
 ### Next Goals
 1. Redesign as a 16-bit CPU
 2. Pipeline instruction fetch, decode, and execution
