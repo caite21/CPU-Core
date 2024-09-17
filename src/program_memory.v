@@ -24,6 +24,7 @@ module program_memory (
 );
 
     reg [7:0] PM [0:31];
+    integer i;
     
     initial begin
         PM[0] = 8'b0001_0000; // load input in acc
@@ -56,6 +57,11 @@ module program_memory (
         PM[27] = 8'b0111_0111; // if zero, branch forward amount in R7 = jump to 29
         PM[28] = 8'b0001_0000; // load 4 into acc (skipped)
         PM[29] = 8'b1110_0000; // output acc = 0
+        
+        // Fill rest of PM with 0
+        for (i = 30; i < 32; i = i + 1) begin
+            PM[i] = 8'b0000_0000; 
+        end
     end
 
     always @(*) begin
