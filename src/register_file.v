@@ -6,7 +6,7 @@
 // Project Name: CPU-Core
 // Target Devices: 
 // Tool Versions: 
-// Description: 8 8-bit registers. Enable write to write to the register at the address, 
+// Description: 8 16-bit registers. Enable write to write to the register at the address, 
 //              else will read/output the register at the address.
 // 
 // Dependencies: 
@@ -20,18 +20,28 @@
 
 module register_file(
     input clock,
-    input [2:0] address,
     input write,
-    input [7:0] in,
-    output reg [7:0] out
+    input [2:0] rs_addr,
+    input [2:0] rt_addr,
+    input [2:0] rd_addr,
+    input [15:0] data,
+    output reg [15:0] rs_data,
+    output reg [15:0] rt_data
     );
     
-    reg [7:0] registers [0:7];
+    reg [15:0] registers [0:7];
+    
+    initial begin
+        registers[0] <= 16'd1;
+        registers[1] <= 16'd2;
+    end
     
     always @ (posedge clock) begin
         if (write) 
-            registers[address] <= in;
-        else 
-            out <= registers[address];
+            registers[rd_addr] <= data;
+        else begin
+            rs_data <= registers[rs_addr];
+            rt_data <= registers[rt_addr];
+        end
     end
 endmodule

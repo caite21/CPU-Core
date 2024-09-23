@@ -21,68 +21,56 @@
 module cpu_core(
     input clock,
     input reset,
-    input enter,
-    input [7:0] user_in,
-    output [7:0] CPU_out,
+    output [15:0] read_data,
     output [4:0] PC_out,
-    output [3:0] OPCODE_out,
-    output done
+    output [4:0] opcode_out
     );
     
-    wire clock_div;
-    wire [1:0] mux_select;
-    wire [7:0] imm_data;
-    wire acc_enable;
-    wire [2:0] rf_address;
     wire rf_write;
-    wire [3:0] alu_select;
-    wire output_enable;
+    wire [2:0] rs_addr;
+    wire [2:0] rt_addr;
+    wire [2:0] rd_addr;
+    wire [15:0] imm_data;
+    wire [3:0] alu_sel;
+    wire imm_sel;
+    wire mem_write;
+    wire [15:0] mem_data;
     wire zero_flag;
-    wire positive_flag;
-    wire [1:0] alu_num_rotate;
-    wire [7:0] alu_result;
-
-    clock_divider cd (
+    wire pos_flag;
+    
+    control_unit CU (
         .clock(clock),
-        .clock_div(clock_div)
-    );
-    
-    control_unit cu (
-        .clock(clock_div),
         .reset(reset),
-        .enter(enter),
-        .imm_data(imm_data),
-        .alu_result(alu_result),
-        .positive_flag(positive_flag),
         .zero_flag(zero_flag),
-        .mux_select(mux_select),
-        .acc_enable(acc_enable),
+        .pos_flag(pos_flag),
         .rf_write(rf_write),
-        .rf_address(rf_address),
-        .alu_select(alu_select),
-        .output_enable(output_enable),
-        .PC(PC_out),
-        .alu_num_rotate(alu_num_rotate),
-        .OPCODE(OPCODE_out),
-        .done(done)
+        .rs_addr(rs_addr),
+        .rt_addr(rt_addr),
+        .rd_addr(rd_addr),
+        .imm_data(imm_data),
+        .alu_sel(alu_sel),
+        .imm_sel(imm_sel),
+        .mem_write(mem_write),
+        .mem_data(mem_data)
     );
     
-    datapath dp (
-        .clock(clock_div),
+    datapath DP (
+        .clock(clock),
         .reset(reset),
-        .mux_select(mux_select),
-        .imm_data(imm_data),
-        .user_in(user_in),
-        .acc_enable(acc_enable),
-        .rf_address(rf_address),
         .rf_write(rf_write),
-        .alu_select(alu_select),
-        .alu_num_rotate(alu_num_rotate),
-        .output_enable(output_enable),
-        .datapath_out(CPU_out),
-        .zero_flag_out(zero_flag),
-        .positive_flag_out(positive_flag),
-        .alu_result(alu_result)
+        .rs_addr(rs_addr),
+        .rt_addr(rt_addr),
+        .rd_addr(rd_addr),
+        .imm_data(imm_data),
+        .alu_sel(alu_sel),
+        .imm_sel(imm_sel),
+        .mem_write(mem_write),
+        .mem_data(mem_data),
+        .read_data(read_data),
+        .zero_flag(zero_flag),
+        .pos_flag(pos_flag)
     );
-
+    
+    assign PC_out = 0;
+    assign opcode_out = 0;
 endmodule
