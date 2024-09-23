@@ -1,4 +1,25 @@
 `timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Engineer: Caite Sklar
+// 
+// Design Name: 
+// Module Name: control_unit_tb
+// Project Name: CPU-Core
+// Target Devices: 
+// Tool Versions: 
+// Description: Asserts controls signals for MOVI R7, #8 in the program memory (#4)
+// 
+// Dependencies: control_unit
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Revision 1.0 - 8-bit width
+// Revision 2.0 - 16-bit width
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
 module control_unit_tb;
     logic clock;
     logic reset;
@@ -13,6 +34,7 @@ module control_unit_tb;
     logic imm_sel;
     logic mem_write;
     logic [15:0] mem_data;
+    logic [4:0] PC;
 
     control_unit dut (
         .clock(clock),
@@ -27,12 +49,13 @@ module control_unit_tb;
         .alu_sel(alu_sel),
         .imm_sel(imm_sel),
         .mem_write(mem_write),
-        .mem_data(mem_data)
+        .mem_data(mem_data),
+        .PC(PC)
     );
     
     always #5 clock = ~clock;
     
-    // Test retrieval of hardcoded PM instructions 
+    // Test controls signals for MOVI R7, #8 
     initial begin
         clock = 0;
         reset = 1;
@@ -41,8 +64,21 @@ module control_unit_tb;
         #10;
         reset = 0;
         
-//        assert() else $fatal(1, "Unexpected instruction: addr=%b out=%b", addr, out);
-        #30;
+        // Wait for PC to reach MOVI R7, #8 instruction
+        #170;
+        // Fetch and read register file
+        assert(PC == 4+1) else $error(1, "Expected: PC=%b Recevied PC=%b", 4+1, PC);
+        assert(rf_write == 0) else $fatal(1, "Expected: rf_write=%b Recevied rf_write=%b", 0, rf_write);
+        #10;
+        // Decode
+        assert(rd_addr == 6) else $fatal(1, "Expected: rd_addr=%b Recevied rd_addr=%b", 6, rd_addr);
+        assert(alu_sel == 4'b1011) else $fatal(1, "Expected: alu_sel=%b Recevied alu_sel=%b", 4'b1011, alu_sel);
+        #10;
+        // Execute
+        #10;
+        // Write-Back
+        assert(rf_write == 1) else $fatal(1, "Expected: rf_write=%b Recevied rf_write=%b", 1, rf_write);
+        #40;
         
         // No fatal errors
         $display ("*** Control Unit Testbench Passed");

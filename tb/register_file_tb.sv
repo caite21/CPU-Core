@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Engineer: Caite Sklar
 // 
@@ -12,6 +13,8 @@
 // 
 // Revision:
 // Revision 0.01 - File Created
+// Revision 1.0 - 8-bit width
+// Revision 2.0 - 16-bit width
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
@@ -26,6 +29,7 @@ module register_file_tb;
     reg [15:0] data;
     wire [15:0] rs_data;
     wire [15:0] rt_data;
+    wire [15:0] r7_data;
 
     register_file RF (
         .clock(clock),
@@ -35,7 +39,8 @@ module register_file_tb;
         .rd_addr(rd_addr),
         .data(data),
         .rs_data(rs_data),
-        .rt_data(rt_data)
+        .rt_data(rt_data),
+        .r7_data(r7_data)
     );
     
     // test variables
@@ -64,9 +69,13 @@ module register_file_tb;
         
         // read registers
         #5 write = 0;
-        #10 $display("%s", rs_data == data1 ? "pass" : "fail");
-        $display("%s", rt_data == data2 ? "pass" : "fail");
-
-        #10 $finish;
+        #10;
+        assert(rs_data == data1) else $fatal(1, "Test 1: Fail");
+        assert(rt_data == data2) else $fatal(1, "Test 2: Fail");
+        #10;
+        
+        // No fatal errors
+        $display ("*** Register File Testbench Passed");
+        $finish;
     end
 endmodule

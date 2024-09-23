@@ -6,12 +6,14 @@
 // Project Name: CPU-Core
 // Target Devices: 
 // Tool Versions: 
-// Description: Tests all 7 alu operations.
+// Description: Tests each ALU operation.
 // 
 // Dependencies: alu
 // 
 // Revision:
 // Revision 0.01 - File Created
+// Revision 1.0 - 8-bit width
+// Revision 2.0 - 16-bit width
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
@@ -33,43 +35,44 @@ module alu_tb;
         a = 13;
         b = 6;
         
-        sel = 0;
-        #2 assert(out == a) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
-
-        #5 sel = 1;
-        #2 assert(out == b) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
-
-        #5 sel = 2;
+        sel = 4'b0000;
         #2 assert(out == (a + b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
 
-        #5 sel = 3;
+        #5 sel = 4'b0001;
         #2 assert(out == (a - b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
-        
-        #5 sel = 4;
+
+        #5 sel = 4'b0010;
         #2 assert(out == (a * b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
 
-        #5 sel = 5;
+        #5 sel = 4'b0011;
         #2 assert(out == (a / b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
 
-        #5 sel = 6;
+        #5 sel = 4'b0100;
         #2 assert(out == (a & b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
 
-        #5 sel = 7;
+        #5 sel = 4'b0101;
         #2 assert(out == (a | b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
 
-        #5 sel = 8;
+        #5 sel = 4'b0110;
         #2 assert(out == (a ^ b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
 
-        #5 sel = 9;
+        #5 sel = 4'b0111;
         #2 assert(out == (a << b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
 
-        #5 sel = 10;
+        #5 sel = 4'b1000;
         #2 assert(out == (a >> b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
 
-        #5 sel = 11;
+        #5 sel = 4'b1011;
+        #2 assert(out == b) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
+
+        #5 sel = 4'b1100;
+        #2 assert(out == (a - b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
+ 
+        #5 sel = 4'b1111;
         #2 assert(out == 0) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
-  
+ 
         #5;
+        
          // No fatal errors
         $display ("*** ALU Testbench Passed");
         $finish;

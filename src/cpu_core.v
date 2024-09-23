@@ -7,12 +7,14 @@
 // Target Devices: 
 // Tool Versions: 
 // Description: Top level structural design connecting the control unit and datapath
-//              into the cpu core with a divided clock siganl. 
+//              into the cpu core. 
 // 
-// Dependencies: control_unit, datapath, clock_divider
+// Dependencies: control_unit, datapath
 // 
 // Revision:
 // Revision 0.01 - File Created
+// Revision 1.0 - 8-bit width
+// Revision 2.0 - 16-bit width
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +25,7 @@ module cpu_core(
     input reset,
     output [15:0] read_data,
     output [4:0] PC_out,
-    output [4:0] opcode_out
+    output [15:0] r7_data
     );
     
     wire rf_write;
@@ -51,7 +53,8 @@ module cpu_core(
         .alu_sel(alu_sel),
         .imm_sel(imm_sel),
         .mem_write(mem_write),
-        .mem_data(mem_data)
+        .mem_data(mem_data),
+        .PC(PC_out)
     );
     
     datapath DP (
@@ -68,9 +71,7 @@ module cpu_core(
         .mem_data(mem_data),
         .read_data(read_data),
         .zero_flag(zero_flag),
-        .pos_flag(pos_flag)
+        .pos_flag(pos_flag),
+        .r7_data(r7_data)
     );
-    
-    assign PC_out = 0;
-    assign opcode_out = 0;
 endmodule

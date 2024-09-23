@@ -6,12 +6,14 @@
 // Project Name: CPU-Core
 // Target Devices: 
 // Tool Versions: 
-// Description: 
+// Description: Tests the instruction MOVI R7, #8 
 // 
-// Dependencies:
+// Dependencies: datapath
 // 
 // Revision:
 // Revision 0.01 - File Created
+// Revision 1.0 - 8-bit width
+// Revision 2.0 - 16-bit width
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +24,7 @@ module datapath_tb;
     reg [15:0] imm_data;
     reg [3:0] alu_sel;
     reg [15:0] mem_data;
-    wire [15:0] read_data;
+    wire [15:0] read_data, r7_data;
     wire zero_flag, pos_flag;
 
     datapath dut (
@@ -37,12 +39,11 @@ module datapath_tb;
         .imm_sel(imm_sel),
         .mem_write(mem_write),
         .mem_data(mem_data),
+        .r7_data(r7_data),
         .read_data(read_data),
         .zero_flag(zero_flag),
         .pos_flag(pos_flag)
     );
-    
-    reg [15:0] correct_regs [0:7];
 
     always #5 clock = ~clock;
 
@@ -55,50 +56,36 @@ module datapath_tb;
         rs_addr = 3'b000;
         rt_addr = 3'b000;
         rd_addr = 3'b000;
-        imm_data = 16'b00000000;
+        imm_data = 16'b0;
         alu_sel = 4'b0000;
         imm_sel = 0;
         mem_data = 16'b0;
         
-        correct_regs[0] <= 16'd1;
-        correct_regs[1] <= 16'd2;
-        
         #10 reset = 0;
         #10; 
         
-        // Decode: Read rf
-        rs_addr = 3'b000; 
-        rt_addr = 3'b001; 
-        #10;
-        
-        // Execute: Add registers
-        rf_write = 0; 
-        alu_sel = 4'b0010;
-        #10; 
-        
-        // Write-Back: Write alu output to rf
-        rd_addr = 3'b010; 
-        rf_write = 1; 
-        imm_sel = 0;
-        correct_regs[rd_addr] = 16'd3;
-        #10; 
-        
-        // Execute: Output imm value
-        rf_write = 0; 
-        imm_data = 15'hFF; 
+        // Instruction: 16'b10110_111_00001000; // MOVI R7, #8 
+        // Decode
+        rf_write = 0;
+        rs_addr = 8'b00001000; 
         imm_sel = 1;
-        alu_sel = 4'b0001;
+        imm_data = 16'd5; 
+        #10;
+        // Execute
+        rf_write = 0; 
+        alu_sel = 4'b1011;
         #10; 
-        // alu_out should = FF
-        
-        // Write-Back: Write imm value to rf
-        rd_addr = 3'b011; 
+        // Write-Back
+        rd_addr = 3'b111; 
         rf_write = 1; 
-        correct_regs[rd_addr] = imm_data;
-        #10; 
+        #50; 
+        // Test 
+        assert(r7_data == 16'd5) else $fatal(1, "Test 1: Fail");
 
-        // Finish simulation
-        #50 $finish;
+        #50;
+        // No fatal errors
+        $display ("*** Datapath Testbench Passed");
+        $finish;
     end
 endmodule
 
