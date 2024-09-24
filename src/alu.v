@@ -39,8 +39,8 @@ module alu(
             4'b0110: out <= in0 ^ in1;
             4'b0111: out <= (in0 << in1);
             4'b1000: out <= (in0 >> in1);
-            4'b1001: out <= 8'b0; // todo
-            4'b1010: out <= 8'b0; // todo
+            4'b1001: out <= in1;
+            4'b1010: out <= in1;
             4'b1011: out <= in1;
             4'b1100: out <= in0 - in1;
             default: out <= 8'b0;

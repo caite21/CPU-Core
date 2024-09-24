@@ -52,13 +52,17 @@ module program_memory (
         PM[19] = 16'b10001_111_110_00010; // LSR R7, R6, R2       R7=1
         PM[20] = 16'b10000_111_110_00001; // LSRI R7, R6, #1       R7=4
         
-        PM[21] = 16'b11001_100_0000101; // CMP R4, R5      equal
-        PM[22] = 16'b11010_0000000010; // BEQ #2          yes
+        PM[21] = 16'b11001_100_00000_101; // CMP R4, R5      equal
+        PM[22] = 16'b11010_000000_00001; // BEQ #1          jump over 1 instr
         PM[23] = 16'b10110_111_00000001; // MOVI R7, #1     skip; R7=4
         PM[24] = 16'b10110_111_00000010; // MOVI R7, #2     R7=2
+        PM[25] = 16'b10101_110_00000_011; // ST R6, [R3]     Store #8 at mem 5
+        PM[26] = 16'b10011_111_00000_011; // LD R7, [R3]     Load #8 into R7
+        PM[27] = 16'b10100_011_00001010; // STI R3, [#10]   Store #5 at mem 10
+        PM[28] = 16'b10010_111_00001010; // LDI R7, [#10]   Load #5 into R7
 
         // Fill rest of PM with 0
-        for (i = 25; i < 32; i = i + 1) begin
+        for (i = 29; i < 32; i = i + 1) begin
             PM[i] = 16'b0000_0000_0000_0000;
         end
     end

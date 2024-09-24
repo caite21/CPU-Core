@@ -6,10 +6,8 @@
 // Project Name: CPU-Core
 // Target Devices: 
 // Tool Versions: 
-// Description: Test register_file by writing to the first and last register
-//              then read the registers and assert that the values read are 
-//              correct.
-// Dependencies: register_file
+// Description: Assert instructions in program memory behave correctly.
+// Dependencies: cpu_core
 // 
 // Revision:
 // Revision 0.01 - File Created
@@ -67,19 +65,39 @@ module cpu_core_tb;
         #10;
         reset = 0;
         
-        // Fill R0-R6
+        // PM 0-4: fills R2-R6
         #255;
         
-        // Test each ALU Function
+        // PM 5-20: Test each ALU Operation stored the correct value in R7 (ADD to LSR)
+        assert(PC_out == 5+2) else $error("Sim timing is incorrect: PC=%d expected PC=%d", PC_out, 5+2);
         for (i = 0; i < 16; i = i + 1) begin
             if (r7_data == correct_r7[i]) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
-            assert(r7_data == correct_r7[i]) else $fatal("R7=%d expected=%d PC=%d", r7_data, correct_r7[i], PC_out);
+            assert(r7_data == correct_r7[i]) else $fatal("Test %d: R7=%d expected=%d PC=%d", i, r7_data, correct_r7[i], PC_out);
             #40;
         end
         
-        #50;
+        // PM 21-24: Test CMP and Branch Operations
+        assert(PC_out == 21+2) else $error("Sim timing is incorrect: PC=%d expected PC=%d", PC_out, 21+2);
+        #40;
+        // Branch skipped setting R7 to #1; R7 stays #4
+        if (r7_data == 4) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
+        assert(r7_data == 4) else $fatal("Did not branch over: R7=%d expected=%d PC=%d", r7_data, 4, PC_out);
+        #40;
+        // Branch landed on setting R7 to #2
+        if (r7_data == 2) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
+        assert(r7_data == 2) else $fatal("Did not branch to: R7=%d expected=%d PC=%d", r7_data, 2, PC_out);
+        #80;
+        
+        // Test LD and ST
+        if (r7_data == 8) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
+        assert(r7_data == 8) else $error("Load incorrect: R7=%d expected=%d PC=%d", r7_data, 8, PC_out);
+        #80;
+        if (r7_data == 5) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
+        assert(r7_data == 5) else $error("Load I incorrect: R7=%d expected=%d PC=%d", r7_data, 5, PC_out);
+        
+        #40;
         // No fatal errors
-        $display ("*** CPU Core Testbench Passed");
+//        $display ("*** CPU Core Testbench Passed");
         $finish;
     end
     

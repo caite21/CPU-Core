@@ -7,7 +7,7 @@
 // Project Name: CPU-Core
 // Target Devices: 
 // Tool Versions: 
-// Description: Asserts controls signals for MOVI R7, #8 in the program memory (#4)
+// Description: Asserts controls signals for MOVI R3, #5 in the program memory (#2)
 // 
 // Dependencies: control_unit
 // 
@@ -55,7 +55,7 @@ module control_unit_tb;
     
     always #5 clock = ~clock;
     
-    // Test controls signals for MOVI R7, #8 
+    
     initial begin
         clock = 0;
         reset = 1;
@@ -64,14 +64,14 @@ module control_unit_tb;
         #10;
         reset = 0;
         
-        // Wait for PC to reach MOVI R7, #8 instruction
-        #170;
+        // Wait for PC to reach MOVI R3, #5 instruction
+        #50;
         // Fetch and read register file
-        assert(PC == 4+1) else $error(1, "Expected: PC=%b Recevied PC=%b", 4+1, PC);
+        assert(PC == 1+1) else $fatal(1, "Expected: PC=%b Recevied PC=%b", 1+1, PC);
         assert(rf_write == 0) else $fatal(1, "Expected: rf_write=%b Recevied rf_write=%b", 0, rf_write);
         #10;
         // Decode
-        assert(rd_addr == 6) else $fatal(1, "Expected: rd_addr=%b Recevied rd_addr=%b", 6, rd_addr);
+        assert(rd_addr == 3) else $fatal(1, "Expected: rd_addr=%b Recevied rd_addr=%b", 6, rd_addr);
         assert(alu_sel == 4'b1011) else $fatal(1, "Expected: alu_sel=%b Recevied alu_sel=%b", 4'b1011, alu_sel);
         #10;
         // Execute
