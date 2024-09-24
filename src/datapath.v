@@ -15,6 +15,7 @@
 // Revision 0.01 - File Created
 // Revision 1.0 - 8-bit width
 // Revision 2.0 - 16-bit width
+// Revision 2.1 - mux before rf data input; mem_sel instead of data_mem
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +32,7 @@ module datapath(
     input [3:0] alu_sel,
     input imm_sel,
     input mem_write,
-    input [15:0] mem_data,
+    input mem_sel,
     output [15:0] r7_data,
     output [15:0] read_data,
     output zero_flag,
@@ -41,7 +42,8 @@ module datapath(
     wire [15:0] rs_data; // connects rf and alu
     wire [15:0] rt_data; // connects rf and alu
     wire [15:0] alu_in1; // connects rf and alu
-    wire [15:0] alu_out; // connects alu to mem and rf data
+    wire [15:0] alu_out; // connects alu to mem and data_mux_rf
+    wire [15:0] rf_data_in; // connects data_mux_rf to rf data
     
     mux_2to1 imm_mux_alu (
         .in0(rt_data),
@@ -56,7 +58,7 @@ module datapath(
         .rs_addr(rs_addr),
         .rt_addr(rt_addr),
         .rd_addr(rd_addr),
-        .data(alu_out),
+        .data(rf_data_in),
         .rs_data(rs_data),
         .rt_data(rt_data),
         .r7_data(r7_data)
@@ -69,16 +71,21 @@ module datapath(
         .out(alu_out)
     );
     
-    // todo
-//    memory mem (
-//        .addr(alu_out),
-//        .write_data(mem_data),
-//        .write(mem_write),
-//        .read_data(read_data)
-//    );
+    main_memory mem (
+        .clock(clock),
+        .addr(alu_out),
+        .write(mem_write),
+        .write_data(rs_data),
+        .read_data(read_data)
+    );
     
-    // todo
-    assign read_data = 0;
+    mux_2to1 data_mux_rf (
+        .in0(alu_out),
+        .in1(read_data),
+        .sel(mem_sel),
+        .out(rf_data_in)
+    );
+    
     assign zero_flag = ~( |alu_out );  // reduction OR: |array
     assign pos_flag = ~alu_out[15];
 endmodule

@@ -6,7 +6,7 @@
 // Project Name: CPU-Core
 // Target Devices: 
 // Tool Versions: 
-// Description: Assert instructions in program memory behave correctly.
+// Description: Assert instructions in program memory execute correctly.
 // Dependencies: cpu_core
 // 
 // Revision:
@@ -90,14 +90,14 @@ module cpu_core_tb;
         
         // Test LD and ST
         if (r7_data == 8) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
-        assert(r7_data == 8) else $error("Load incorrect: R7=%d expected=%d PC=%d", r7_data, 8, PC_out);
+        assert(r7_data == 8) else $fatal("Load incorrect: R7=%d expected=%d PC=%d", r7_data, 8, PC_out);
         #80;
         if (r7_data == 5) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
-        assert(r7_data == 5) else $error("Load I incorrect: R7=%d expected=%d PC=%d", r7_data, 5, PC_out);
-        
+        assert(r7_data == 5) else $fatal("Load I incorrect: R7=%d expected=%d PC=%d", r7_data, 5, PC_out);
+
         #40;
         // No fatal errors
-//        $display ("*** CPU Core Testbench Passed");
+        $display ("*** CPU Core Testbench Passed");
         $finish;
     end
     

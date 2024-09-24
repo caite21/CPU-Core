@@ -15,6 +15,7 @@
 // Revision 0.01 - File Created
 // Revision 1.0 - 8-bit width
 // Revision 2.0 - 16-bit width
+// Revision 2.1 - mux before rf data input; mem_sel instead of data_mem
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +34,7 @@ module control_unit_tb;
     logic [3:0] alu_sel;
     logic imm_sel;
     logic mem_write;
-    logic [15:0] mem_data;
+    logic mem_sel;
     logic [4:0] PC;
 
     control_unit dut (
@@ -49,7 +50,7 @@ module control_unit_tb;
         .alu_sel(alu_sel),
         .imm_sel(imm_sel),
         .mem_write(mem_write),
-        .mem_data(mem_data),
+        .mem_sel(mem_sel),
         .PC(PC)
     );
     

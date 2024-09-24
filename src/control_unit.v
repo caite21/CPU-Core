@@ -8,7 +8,7 @@
 // Target Devices: 
 // Tool Versions: 
 // Description: Finite state machine for instruction fetch, decode, execute, 
-//              memory access, and write-back. Also contains instruction definitions. 
+//              memory access, and write-back. 
 // 
 // Dependencies: program_memory
 // 
@@ -16,6 +16,7 @@
 // Revision 0.01 - File Created
 // Revision 1.0 - 8-bit width
 // Revision 2.0 - 16-bit width
+// Revision 2.1 - mux before rf data input; mem_sel instead of data_mem
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +35,7 @@ module control_unit(
     output reg [3:0] alu_sel,
     output reg imm_sel,
     output reg mem_write,
-    output reg [15:0] mem_data,
+    output reg mem_sel,
     output reg [4:0] PC
     );
 
@@ -93,18 +94,31 @@ module control_unit(
         end
         else if (reset == 1) begin
             PC <= 0;
+            instr <= 0;
+            opcode <= 0;
+            rf_write <= 0;
+            rs_addr <= 0;
+            rt_addr <= 0;
+            rd_addr <= 0;
+            imm_data <= 16'b0;
+            alu_sel <= 4'b1111;
+            mem_write <= 0;
+            mem_sel <= 1'b0;
+            imm_addr <= 11'b0;
             next_state <= FETCH;
         end
         else begin
             case (next_state)
                 FETCH: begin
                         rf_write <= 0; 
+                        mem_write <= 0; 
                         instr <= PM_data;
                         PC <= PC + 1;
                         next_state <= DECODE;
                     end
                 DECODE: begin
                         rf_write <= 0; 
+                        mem_sel <= 0;
                         opcode <= instr[15:11];
                         if (instr[15:11] <= LSR) begin
                             // 3-input instruction
@@ -142,6 +156,7 @@ module control_unit(
                                         rf_write <= 0; 
                                         alu_sel <= opcode[4:1];
                                         next_state <= MEMORY;
+                                        mem_sel <= 1;
                                     end
                                 ST: begin
                                         rf_write <= 0; 
@@ -152,6 +167,7 @@ module control_unit(
                                         rf_write <= 0; 
                                         alu_sel <= opcode[4:1];
                                         next_state <= MEMORY;
+                                        mem_sel <= 1;
                                     end
                                 STI: begin
                                         rf_write <= 0; 
@@ -188,7 +204,7 @@ module control_unit(
                                     imm_data <= 16'b0;
                                     alu_sel <= 4'b1111;
                                     mem_write <= 0;
-                                    mem_data <= 16'b0;
+                                    mem_sel <= 1'b0;
                                     imm_addr <= 11'b0;
                                     next_state <= FETCH;
                                 end
@@ -220,11 +236,13 @@ module control_unit(
                         endcase
                     end
                 WRITEBACK: begin
-                        rf_write <= 1; 
+                        rf_write <= 1;
+                        mem_write <= 0; 
                         next_state <= FETCH;
                     end
                 default: begin
                         rf_write <= 0; 
+                        mem_write <= 0; 
                         instr <= 0;
                         PC <= 0;
                         opcode <= 0;

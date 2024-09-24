@@ -14,16 +14,16 @@
 // Revision 0.01 - File Created
 // Revision 1.0 - 8-bit width
 // Revision 2.0 - 16-bit width
+// Revision 2.1 - mux before rf data input; mem_sel instead of data_mem
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
 module datapath_tb;
-    reg clock, reset, rf_write, mem_write, imm_sel;
+    reg clock, reset, rf_write, mem_write, imm_sel, mem_sel;
     reg [2:0] rs_addr, rt_addr, rd_addr;
     reg [15:0] imm_data;
     reg [3:0] alu_sel;
-    reg [15:0] mem_data;
     wire [15:0] read_data, r7_data;
     wire zero_flag, pos_flag;
 
@@ -38,7 +38,7 @@ module datapath_tb;
         .alu_sel(alu_sel),
         .imm_sel(imm_sel),
         .mem_write(mem_write),
-        .mem_data(mem_data),
+        .mem_sel(mem_sel),
         .r7_data(r7_data),
         .read_data(read_data),
         .zero_flag(zero_flag),
@@ -59,7 +59,7 @@ module datapath_tb;
         imm_data = 16'b0;
         alu_sel = 4'b0000;
         imm_sel = 0;
-        mem_data = 16'b0;
+        mem_sel = 1'b0;
         
         #10 reset = 0;
         #10; 
