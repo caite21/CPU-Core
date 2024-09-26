@@ -17,22 +17,22 @@ Using Xilinx Vivado
 ![elaborated_datapath](https://github.com/caite21/CPU-Core/blob/main/img/datapath_schematic_v2.png)
 
 
-### 16-Bit Custom Assembly and Machine Language
+### Custom Instruction Set Architecture (ISA)
 
-3-Inputs: ADD	SUB	MUL	DIV	AND	OR	XOR	LSL	LSR with register or immediate value (ADDI, SUBI, etc.)
+- 3-Inputs: ADD	SUB	MUL	DIV	AND	OR	XOR	LSL	LSR with register or immediate value (ADDI, SUBI, etc.)
 
-| 4-bit opcode | 1-bit imm flag | 3-bit destination register | 3-bit register operand 1 | 5-bit imm or reg operand 2 |
+| 4-bit opcode | 1-bit imm flag | 3-bit destination reg | 3-bit reg operand 1 | 5-bit imm or reg operand 2 |
 |---|---|---|---|---|
 
 
-2-Inputs: LD, ST, MOV, CMP with register or immediate value
+- 2-Inputs: LD, ST, MOV, CMP with register or immediate value
 
-| 4-bit opcode | 1-bit imm flag | 3-bit register operand 1 | 8-bit imm or reg operand 2 |
+| 4-bit opcode | 1-bit imm flag | 3-bit reg operand 1 | 8-bit imm or reg operand 2 |
 |---|---|---|---|
 
-1-Input: BEQ BLT	BGT	J
+- 1-Input: BEQ BLT	BGT	J
 
-| 4-bit opcode | 1-bit imm flag | 11-bit imm value |
+| 4-bit opcode | 1-bit flag | 11-bit imm value |
 |---|---|---|
 
 <br>
