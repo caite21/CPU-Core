@@ -2,7 +2,7 @@
 
 ## Design
 
-This project implements a simple 16-bit CPU core in Verilog/SystemVerilog, featuring a 5-stage control unit and a datapath that consists of multiplexers, a register file (8 addresses), an ALU, and a main memory (32 addresses).
+This project implements a simple 16-bit CPU core in Verilog/SystemVerilog, featuring a 5-stage control unit and a datapath that consists of multiplexers, a register file (8 addresses), an ALU, and a main memory.
 
 ***Previously was an 8-bit 3-stage CPU Core (v1)***
 
