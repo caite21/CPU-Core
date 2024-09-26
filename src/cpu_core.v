@@ -21,12 +21,14 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module cpu_core(
-    input clock,
-    input reset,
-    output [15:0] read_data,
-    output [4:0] PC_out,
-    output [15:0] r7_data
+module cpu_core #(
+        PC_WIDTH = 6
+    )(
+        input clock,
+        input reset,
+        output [15:0] read_data,
+        output [PC_WIDTH-1:0] PC_out,
+        output [15:0] r7_data
     );
     
     wire rf_write;
@@ -41,7 +43,7 @@ module cpu_core(
     wire zero_flag;
     wire pos_flag;
     
-    control_unit CU (
+    control_unit #(.PC_WIDTH(PC_WIDTH)) CU (
         .clock(clock),
         .reset(reset),
         .zero_flag(zero_flag),

@@ -22,21 +22,24 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module control_unit(
-    input clock,
-    input reset,
-    input zero_flag,
-    input pos_flag,
-    output reg rf_write,
-    output reg [2:0] rs_addr,
-    output reg [2:0] rt_addr,
-    output reg [2:0] rd_addr,
-    output reg [15:0] imm_data,
-    output reg [3:0] alu_sel,
-    output reg imm_sel,
-    output reg mem_write,
-    output reg mem_sel,
-    output reg [4:0] PC
+module control_unit
+    #(
+        PC_WIDTH = 6
+    )(
+        input clock,
+        input reset,
+        input zero_flag,
+        input pos_flag,
+        output reg rf_write,
+        output reg [2:0] rs_addr,
+        output reg [2:0] rt_addr,
+        output reg [2:0] rd_addr,
+        output reg [15:0] imm_data,
+        output reg [3:0] alu_sel,
+        output reg imm_sel,
+        output reg mem_write,
+        output reg mem_sel,
+        output reg [PC_WIDTH-1:0] PC
     );
 
     // State Machine
@@ -61,12 +64,14 @@ module control_unit(
                     MOV = 4'b1011,
                     CMP = 4'b1100,
                     BEQ = 4'b1101,
-                    BT = 4'b1110, // BLT if imm_sel = 0 BGT if imm_sel = 1
+                    BxT = 4'b1110, // BLT if imm_sel = 0 BGT if imm_sel = 1
                     J = 4'b1111;
 
     // For fetching and decoding instruction
     wire [15:0] PM_data;
-    program_memory PM (
+    program_memory #(
+        .ADDR_WIDTH(PC_WIDTH)
+    ) PM (
         .addr(PC),
         .data_out(PM_data)
     );
@@ -77,7 +82,7 @@ module control_unit(
     
     
     always @ (posedge clock) begin
-        if (PC == 5'b11111) begin
+        if (PC == (1 << PC_WIDTH) - 1) begin
             next_state <= STOP;
         end
         else if (reset == 1) begin
@@ -127,7 +132,7 @@ module control_unit(
                         end
                         else begin
                             // 1-input instruction
-                            imm_addr <= instr[4:0]; // can do up to [10:0] with larger memory
+                            imm_addr <= instr[PC_WIDTH-1:0];
                         end
                         next_state <= EXECUTE;
                     end
@@ -159,7 +164,7 @@ module control_unit(
                                         end  
                                         next_state <= FETCH;
                                     end
-                                BT: begin
+                                BxT: begin
                                         if ((imm_sel && ~pos_flag) || (~imm_sel && pos_flag)) begin
                                             // if BLT or BGT and true, branch
                                             PC <= PC + imm_addr;

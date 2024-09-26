@@ -24,7 +24,7 @@ module cpu_core_tb;
     logic [15:0] CPU_out;
     logic [15:0] read_data;
     logic [15:0] r7_data;
-    logic [4:0] PC_out;
+    logic [dut.PC_WIDTH-1:0] PC_out;
     logic done;
     
     logic [15:0] correct_r7 [0:15];
@@ -95,6 +95,14 @@ module cpu_core_tb;
         if (r7_data == 5) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
         assert(r7_data == 5) else $fatal("Load I incorrect: R7=%d expected=%d PC=%d", r7_data, 5, PC_out);
 
+        // Test BLT and BGT
+        #160;
+        if (r7_data == 5) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
+        assert(r7_data == 5) else $fatal("BxT incorrect: R7=%d expected=%d PC=%d", r7_data, 5, PC_out);
+        #40;
+        if (r7_data == 2) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
+        assert(r7_data == 2) else $fatal("BxT incorrect: R7=%d expected=%d PC=%d", r7_data, 2, PC_out);
+        
         #40;
         // No fatal errors
         $display ("*** CPU Core Testbench Passed");

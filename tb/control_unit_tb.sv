@@ -35,8 +35,8 @@ module control_unit_tb;
     logic imm_sel;
     logic mem_write;
     logic mem_sel;
-    logic [4:0] PC;
-
+    logic [dut.PC_WIDTH-1:0] PC;
+    
     control_unit dut (
         .clock(clock),
         .reset(reset),
@@ -53,6 +53,7 @@ module control_unit_tb;
         .mem_sel(mem_sel),
         .PC(PC)
     );
+    
     
     always #5 clock = ~clock;
     
