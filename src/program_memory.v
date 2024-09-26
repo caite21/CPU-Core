@@ -58,7 +58,7 @@ module program_memory #(
         PM[20] = 16'b10000_111_110_00001; // LSRI R7, R6, #1       R7=4
         // Compare and branch
         PM[21] = 16'b11001_100_00000_101; // CMP R4, R5      equal
-        PM[22] = 16'b11010_000000_00001; // BEQ #1          jump over 1 instr
+        PM[22] = 16'b11010_00000000001; // BEQ #1          jump over 1 instr
         PM[23] = 16'b10110_111_00000001; // MOVI R7, #1     skip; R7=4
         PM[24] = 16'b10110_111_00000010; // MOVI R7, #2     R7=2
         // Load and store
@@ -66,14 +66,20 @@ module program_memory #(
         PM[26] = 16'b10011_111_00000_011; // LD R7, [R3]     Load #8 into R7
         PM[27] = 16'b10100_011_00001010; // STI R3, [#10]   Store #5 at mem 10
         PM[28] = 16'b10010_111_00001010; // LDI R7, [#10]   Load #5 into R7
-        
+        // Branch less than and greater than
         PM[29] = 16'b00001_000_111_00011; // ADD R0, R7, R3      R0=10
         PM[30] = 16'b11001_000_00000_100; // CMP R0, R4     greater
-        PM[31] = 16'b11100_000000_00001; // BLT #1          false 
-        PM[32] = 16'b11101_000000_00001; // BGT #1          jump over 1 instr
-        PM[33] = 16'b10110_111_00000001; // MOVI R7, #1     skip; R7=5
+        PM[31] = 16'b11100_00000000001; // BLT #1          false 
+        PM[32] = 16'b11101_00000000001; // BGT #1          jump over 1 instr
+        PM[33] = 16'b10110_111_00000001; // MOVI R7, #1     skip first time; R7=5
         PM[34] = 16'b10110_111_00000010; // MOVI R7, #2     R7=2
-        last_instr = 34;
+        // Jump
+        PM[35] = 16'b00010_000_000_00101; // SUBI R0, R0, #5     R0=5
+        PM[36] = 16'b11001_000_00000_011; //  CMP R0, R3  (R3=5)
+        PM[37] = 16'b11100_00000000001; // BLT #1
+        PM[38] = 16'b11110_00000011110; // J #30  Start from PM[30] ; will jump back once
+        PM[39] = 16'b10110_111_00000011; // MOVI R7, #3     R7=3
+        last_instr = 39;
 
         // Fill rest of PM with 0
         for (i = last_instr+1; i < SIZE; i = i + 1) begin

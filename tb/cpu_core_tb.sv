@@ -103,7 +103,15 @@ module cpu_core_tb;
         if (r7_data == 2) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
         assert(r7_data == 2) else $fatal("BxT incorrect: R7=%d expected=%d PC=%d", r7_data, 2, PC_out);
         
-        #40;
+        #240;
+        if (r7_data == 1) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
+        assert(r7_data == 1) else $error("J or BGT incorrect: R7=%d expected=%d PC=%d", r7_data, 1, PC_out);
+        
+        #200;
+        if (r7_data == 3) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
+        assert(r7_data == 3) else $error("J incorrect: R7=%d expected=%d PC=%d", r7_data, 3, PC_out);
+        
+        #80;
         // No fatal errors
         $display ("*** CPU Core Testbench Passed");
         $finish;

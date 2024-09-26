@@ -43,7 +43,9 @@ module alu(
             4'b1010: out <= in1;
             4'b1011: out <= in1;
             4'b1100: out <= in0 - in1;
-            default: out <= 8'b0;
+            4'b1110: out <= in0 - in1;
+            4'b1111: out <= in0 - in1;
+            default: out <= 8'bx;
         endcase
     end
 endmodule

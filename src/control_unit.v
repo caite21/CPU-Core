@@ -165,14 +165,15 @@ module control_unit
                                         next_state <= FETCH;
                                     end
                                 BxT: begin
-                                        if ((imm_sel && ~pos_flag) || (~imm_sel && pos_flag)) begin
-                                            // if BLT or BGT and true, branch
+                                        if ((imm_sel && ~pos_flag && ~zero_flag) || (~imm_sel && pos_flag && ~zero_flag)) begin
+                                            // branch if opcode is BLT and it is less than and not equal; same for BGT
                                             PC <= PC + imm_addr;
                                         end  
                                         next_state <= FETCH;
                                     end
                                 J: begin
                                     PC <= imm_addr;
+                                    next_state <= FETCH;
                                 end
                                 default: begin
                                     rf_write <= 0;
