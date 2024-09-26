@@ -47,45 +47,33 @@ module control_unit(
                     MEMORY = 4, 
                     WRITEBACK = 5, 
                     STOP = 0;
-    localparam [4:0] ADDI = 5'b00000,
-                    ADD = 5'b00001,
-                    SUBI = 5'b00010,
-                    SUB = 5'b00011,
-                    MULI = 5'b00100,
-                    MUL = 5'b00101,
-                    DIVI = 5'b00110,
-                    DIV = 5'b00111,
-                    ANDI = 5'b01000,
-                    AND = 5'b01001,
-                    ORI = 5'b01010,
-                    OR = 5'b01011,
-                    XORI = 5'b01100,
-                    XOR = 5'b01101,
-                    LSLI = 5'b01110,
-                    LSL = 5'b01111,
-                    LSRI = 5'b10000,
-                    LSR = 5'b10001,
-                    LDI = 5'b10010,
-                    LD = 5'b10011,
-                    STI = 5'b10100,
-                    ST = 5'b10101,
-                    MOVI = 5'b10110,
-                    MOV = 5'b10111,
-                    CMPI = 5'b11000,
-                    CMP = 5'b11001,
-                    BEQ = 5'b11010,
-                    BLT = 5'b11011,
-                    BGT = 5'b11100,
-                    J = 5'b11101;
+    localparam [4:0] ADD = 4'b0000,
+                    SUB = 4'b0001,
+                    MUL = 4'b0010,
+                    DIV = 4'b0011,
+                    AND = 4'b0100,
+                    OR = 4'b0101,
+                    XOR = 4'b0110,
+                    LSL = 4'b0111,
+                    LSR = 4'b1000,
+                    LD = 4'b1001,
+                    ST = 4'b1010,
+                    MOV = 4'b1011,
+                    CMP = 4'b1100,
+                    BEQ = 4'b1101,
+                    BT = 4'b1110, // BLT if imm_sel = 0 BGT if imm_sel = 1
+                    J = 4'b1111;
 
-    reg [15:0] instr;
-    reg [4:0] opcode;
+    // For fetching and decoding instruction
     wire [15:0] PM_data;
     program_memory PM (
         .addr(PC),
         .data_out(PM_data)
     );
+    reg [15:0] instr;
+    reg [3:0] opcode;
     reg [10:0] imm_addr;
+    integer curr_PC = 0;
     
     
     always @ (posedge clock) begin
@@ -113,89 +101,74 @@ module control_unit(
                         rf_write <= 0; 
                         mem_write <= 0; 
                         instr <= PM_data;
+                        curr_PC <= PC;
                         PC <= PC + 1;
                         next_state <= DECODE;
                     end
                 DECODE: begin
                         rf_write <= 0; 
+                        mem_write <= 0; 
                         mem_sel <= 0;
-                        opcode <= instr[15:11];
-                        if (instr[15:11] <= LSR) begin
+                        opcode <= instr[15:12];
+                        imm_sel <= ~instr[11];
+                        if (instr[15:12] <= LSR) begin
                             // 3-input instruction
                             rd_addr <= instr[10:8];
                             rs_addr <= instr[7:5];
                             rt_addr <= instr[4:0];
-                            imm_sel <= ~instr[11];
                             imm_data <= instr[4:0];
                         end
-                        else if (instr[15:11] <= CMP) begin
+                        else if (instr[15:12] <= CMP) begin
                             // 2-input instruction
                             rd_addr <= instr[10:8];
                             rs_addr <= instr[10:8];
                             rt_addr <= instr[2:0];
-                            imm_sel <= ~instr[11];
                             imm_data <= instr[7:0];
                         end
                         else begin
                             // 1-input instruction
-                            imm_addr <= instr[4:0];
-                            imm_sel <= 1'b1;
+                            imm_addr <= instr[4:0]; // can do up to [10:0] with larger memory
                         end
                         next_state <= EXECUTE;
                     end
                 EXECUTE: begin
+                        rf_write <= 0; 
+                        alu_sel <= opcode;
                         if (opcode <= LSR) begin
                             // ALU operations
-                            rf_write <= 0; 
-                            alu_sel <= opcode[4:1];
                             next_state <= WRITEBACK;
                         end
                         else begin
                             case(opcode)
                                 LD: begin
-                                        rf_write <= 0; 
-                                        alu_sel <= opcode[4:1];
-                                        next_state <= MEMORY;
                                         mem_sel <= 1;
+                                        next_state <= MEMORY;
                                     end
                                 ST: begin
-                                        rf_write <= 0; 
-                                        alu_sel <= opcode[4:1];
                                         next_state <= MEMORY;
-                                    end
-                                LDI: begin
-                                        rf_write <= 0; 
-                                        alu_sel <= opcode[4:1];
-                                        next_state <= MEMORY;
-                                        mem_sel <= 1;
-                                    end
-                                STI: begin
-                                        rf_write <= 0; 
-                                        alu_sel <= opcode[4:1];
-                                        next_state <= MEMORY;
-                                    end
-                                MOVI: begin
-                                        rf_write <= 0; 
-                                        alu_sel <= opcode[4:1];
-                                        next_state <= WRITEBACK;
                                     end
                                 MOV: begin
-                                        rf_write <= 0; 
-                                        alu_sel <= opcode[4:1];
                                         next_state <= WRITEBACK;
                                     end
                                 CMP: begin
-                                        rf_write <= 0; 
-                                        alu_sel <= opcode[4:1];
                                         next_state <= FETCH;
                                     end
                                 BEQ: begin
-                                        rf_write <= 0;
                                         if (zero_flag == 0) begin
                                             PC <= PC + imm_addr;
                                         end  
                                         next_state <= FETCH;
                                     end
+                                BT: begin
+                                        if ((imm_sel && ~pos_flag) || (~imm_sel && pos_flag)) begin
+                                            // if BLT or BGT and true, branch
+                                            PC <= PC + imm_addr;
+                                        end  
+                                        next_state <= FETCH;
+                                    end
+                                J: begin
+                                    PC <= imm_addr;
+                                end
                                 default: begin
                                     rf_write <= 0;
                                     rs_addr <= 0;
@@ -212,24 +185,13 @@ module control_unit(
                         end
                     end
                 MEMORY: begin
+                        rf_write <= 0;
                         case(opcode)
                             LD: begin
-                                    rf_write <= 0;
                                     mem_write <= 0;
                                     next_state <= WRITEBACK;
                                 end
                             ST: begin
-                                    rf_write <= 0; 
-                                    mem_write <= 1;
-                                    next_state <= FETCH;
-                                end
-                            LDI: begin
-                                    rf_write <= 0;
-                                    mem_write <= 0;
-                                    next_state <= WRITEBACK;
-                                end
-                            STI: begin
-                                    rf_write <= 0; 
                                     mem_write <= 1;
                                     next_state <= FETCH;
                                 end
