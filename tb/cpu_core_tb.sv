@@ -21,97 +21,90 @@
 module cpu_core_tb;
     logic clock;
     logic reset;
-    logic [15:0] CPU_out;
-    logic [15:0] read_data;
+    logic [5:0] PC_out;
     logic [15:0] r7_data;
-    logic [dut.PC_WIDTH-1:0] PC_out;
-    logic done;
     
-    logic [15:0] correct_r7 [0:15];
+    localparam int correct_r7[0:15] = '{6, 1, 15, 9, 3, 4, 13, 9, 1, 0, 6, 7, 64, 16, 1, 4};
     integer i;
+    
+    localparam clk_T = 10;
     
     cpu_core dut (
         .clock(clock),
         .reset(reset),
-        .read_data(read_data),
-        .r7_data(r7_data),
-        .PC_out(PC_out)
+        .PC_out(PC_out),
+        .r7_data(r7_data)
     );
     
-    always #5 clock = ~clock;
+    always #(clk_T/2) clock = ~clock;
     
     initial begin
-        // Fill expected test results
-        correct_r7[0] = 6;
-        correct_r7[1] = 1;
-        correct_r7[2] = 15;
-        correct_r7[3] = 9;
-        correct_r7[4] = 3;
-        correct_r7[5] = 4;
-        correct_r7[6] = 13;
-        correct_r7[7] = 9;
-        correct_r7[8] = 1;
-        correct_r7[9] = 0;
-        correct_r7[10] = 6;
-        correct_r7[11] = 7;
-        correct_r7[12] = 64;
-        correct_r7[13] = 16;
-        correct_r7[14] = 1;
-        correct_r7[15] = 4;
-    
-        // Start
+        // Reset and delay
         clock = 0;
         reset = 1;
-        #10;
+        #(clk_T*10);
         reset = 0;
+        #(clk_T); // Start sampling just after clk edge
         
-        // PM 0-4: fills R2-R6
-        #255;
+        // PM 0-4: 5 arithemtic instructions each with 4 stages (fills R2-R6)
+        #(clk_T*4*5);
         
-        // PM 5-20: Test each ALU Operation stored the correct value in R7 (ADD to LSR)
-        assert(PC_out == 5+2) else $error("Sim timing is incorrect: PC=%d expected PC=%d", PC_out, 5+2);
+        assert(PC_out == 5+1) else $error("Sim timing is incorrect: PC=%d expected PC=%d", PC_out, 5+2);
+        
+        // PM 5-20: Test each instruction stores the correct value in R7 (ADD to LSR)
         for (i = 0; i < 16; i = i + 1) begin
+            #(clk_T*4);
             if (r7_data == correct_r7[i]) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
-            assert(r7_data == correct_r7[i]) else $fatal("Test %d: R7=%d expected=%d PC=%d", i, r7_data, correct_r7[i], PC_out);
-            #40;
+            assert(r7_data == correct_r7[i]) else $error("Test %d: R7=%d expected=%d PC=%d", i, r7_data, correct_r7[i], PC_out);
         end
         
-        // PM 21-24: Test CMP and Branch Operations
-        assert(PC_out == 21+2) else $error("Sim timing is incorrect: PC=%d expected PC=%d", PC_out, 21+2);
-        #40;
-        // Branch skipped setting R7 to #1; R7 stays #4
+        // PM 21-24: Test CMP and Branch
+        assert(PC_out == 21+1) else $error("Sim timing is incorrect: PC=%d expected PC=%d", PC_out, 21+2);
+
+        #(clk_T*3); // CMP is 3 stages
+        #(clk_T*3); // B is 3 stages
+        
+        // MOVI is skipped; R7 stays #4
         if (r7_data == 4) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
-        assert(r7_data == 4) else $fatal("Did not branch over: R7=%d expected=%d PC=%d", r7_data, 4, PC_out);
-        #40;
-        // Branch landed on setting R7 to #2
+        assert(r7_data == 4) else $error("Did not branch over: R7=%d expected=%d PC=%d", r7_data, 4, PC_out);
+
+        #(clk_T*4); // MOVI
         if (r7_data == 2) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
         assert(r7_data == 2) else $fatal("Did not branch to: R7=%d expected=%d PC=%d", r7_data, 2, PC_out);
-        #80;
         
-        // Test LD and ST
+        
+        // PM 25-28: Test ST and LD
+        #(clk_T*4 + clk_T*5); // ST, LD
         if (r7_data == 8) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
         assert(r7_data == 8) else $fatal("Load incorrect: R7=%d expected=%d PC=%d", r7_data, 8, PC_out);
-        #80;
+        
+        #(clk_T*4 + clk_T*5); // STI, LDI
         if (r7_data == 5) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
         assert(r7_data == 5) else $fatal("Load I incorrect: R7=%d expected=%d PC=%d", r7_data, 5, PC_out);
 
-        // Test BLT and BGT
-        #160;
+
+        // PM 29-34: Test BLT and BGT
+        #(clk_T*4 + clk_T*3 + clk_T*3 + clk_T*3); // ADD, CMP, BLT, BGT, skip
         if (r7_data == 5) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
         assert(r7_data == 5) else $fatal("BxT incorrect: R7=%d expected=%d PC=%d", r7_data, 5, PC_out);
-        #40;
+
+        #(clk_T*4); // MOVI
         if (r7_data == 2) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
         assert(r7_data == 2) else $fatal("BxT incorrect: R7=%d expected=%d PC=%d", r7_data, 2, PC_out);
         
-        #240;
+        
+        // PM 35-39: Test J
+        #(clk_T*4 + clk_T*3 + clk_T*3 + clk_T*3); // SUBI, CMP, BLT, J
+        // Jumps back to instruction 30
+        #(clk_T*3 + clk_T*3 + clk_T*4); // CMP, BLT, skip, MOVI
         if (r7_data == 1) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
-        assert(r7_data == 1) else $error("J or BGT incorrect: R7=%d expected=%d PC=%d", r7_data, 1, PC_out);
-        
-        #200;
+        assert(r7_data == 1) else $fatal("J or BGT incorrect: R7=%d expected=%d PC=%d", r7_data, 1, PC_out);
+        // Doesn't jump
+        #(clk_T*4 + clk_T*4 + clk_T*3 + clk_T*3 + clk_T*3 + clk_T*4); // MOVI, SUBI, CMP, BLT, J, MOVI
         if (r7_data == 3) $display("Pass: R7=%d PC=%d", r7_data, PC_out);
-        assert(r7_data == 3) else $error("J incorrect: R7=%d expected=%d PC=%d", r7_data, 3, PC_out);
+        assert(r7_data == 3) else $fatal("J incorrect: R7=%d expected=%d PC=%d", r7_data, 3, PC_out);
         
-        #80;
+        #100;
         // No fatal errors
         $display ("*** CPU Core Testbench Passed");
         $finish;

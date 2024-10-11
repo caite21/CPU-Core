@@ -33,17 +33,17 @@ module datapath(
     input imm_sel,
     input mem_write,
     input mem_sel,
-    output [15:0] r7_data,
-    output [15:0] read_data,
     output zero_flag,
-    output pos_flag
+    output pos_flag,
+    output [15:0] r7_data
     );
     
     wire [15:0] rs_data; // connects rf and alu
     wire [15:0] rt_data; // connects rf and alu
     wire [15:0] alu_in1; // connects rf and alu
-    wire [15:0] alu_out; // connects alu to mem and data_mux_rf
+    wire [15:0] alu_out; // connects alu to mem and rf through data_mux_rf
     wire [15:0] rf_data_in; // connects data_mux_rf to rf data
+    wire [15:0] read_data; // connects mem to rf through data_mux_rf
     
     mux_2to1 imm_mux_alu (
         .in0(rt_data),
@@ -54,6 +54,7 @@ module datapath(
     
     register_file rf (
         .clock(clock),
+        .reset(reset),
         .write(rf_write),
         .rs_addr(rs_addr),
         .rt_addr(rt_addr),
@@ -73,7 +74,7 @@ module datapath(
     
     main_memory mem (
         .clock(clock),
-        .addr(alu_out),
+        .addr(alu_out[4:0]),
         .write(mem_write),
         .write_data(rs_data),
         .read_data(read_data)

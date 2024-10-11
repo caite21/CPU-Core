@@ -24,7 +24,6 @@ module datapath_tb;
     reg [2:0] rs_addr, rt_addr, rd_addr;
     reg [15:0] imm_data;
     reg [3:0] alu_sel;
-    wire [15:0] read_data, r7_data;
     wire zero_flag, pos_flag;
 
     datapath dut (
@@ -39,8 +38,6 @@ module datapath_tb;
         .imm_sel(imm_sel),
         .mem_write(mem_write),
         .mem_sel(mem_sel),
-        .r7_data(r7_data),
-        .read_data(read_data),
         .zero_flag(zero_flag),
         .pos_flag(pos_flag)
     );
@@ -80,7 +77,7 @@ module datapath_tb;
         rf_write = 1; 
         #50; 
         // Test 
-        assert(r7_data == 16'd5) else $fatal(1, "Test 1: Fail");
+        assert(dut.rf.r7_data == 16'd5) else $fatal(1, "Test 1: Fail");
 
         #50;
         // No fatal errors

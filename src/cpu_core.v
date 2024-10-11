@@ -21,12 +21,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module cpu_core #(
-        PC_WIDTH = 6
+module cpu_core 
+    #(
+        parameter PC_WIDTH = 6
     )(
         input clock,
         input reset,
-        output [15:0] read_data,
         output [PC_WIDTH-1:0] PC_out,
         output [15:0] r7_data
     );
@@ -43,11 +43,23 @@ module cpu_core #(
     wire zero_flag;
     wire pos_flag;
     
-    control_unit #(.PC_WIDTH(PC_WIDTH)) CU (
+    wire [PC_WIDTH-1:0] PC;
+    wire [15:0] PM_data;
+    
+    assign PC_out = PC;
+    
+    // Prevent synthesis from removing the program memory 
+    (* DONT_TOUCH = "yes" *) program_memory pm (
+        .addr(PC),
+        .data_out(PM_data)
+    );
+    
+    control_unit cu (
         .clock(clock),
         .reset(reset),
         .zero_flag(zero_flag),
         .pos_flag(pos_flag),
+        .PM_data(PM_data),
         .rf_write(rf_write),
         .rs_addr(rs_addr),
         .rt_addr(rt_addr),
@@ -57,10 +69,10 @@ module cpu_core #(
         .imm_sel(imm_sel),
         .mem_write(mem_write),
         .mem_sel(mem_sel),
-        .PC(PC_out)
+        .PC(PC)
     );
     
-    datapath DP (
+    datapath dp (
         .clock(clock),
         .reset(reset),
         .rf_write(rf_write),
@@ -72,7 +84,6 @@ module cpu_core #(
         .imm_sel(imm_sel),
         .mem_write(mem_write),
         .mem_sel(mem_sel),
-        .read_data(read_data),
         .zero_flag(zero_flag),
         .pos_flag(pos_flag),
         .r7_data(r7_data)

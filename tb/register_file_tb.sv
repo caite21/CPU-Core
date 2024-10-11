@@ -29,7 +29,6 @@ module register_file_tb;
     reg [15:0] data;
     wire [15:0] rs_data;
     wire [15:0] rt_data;
-    wire [15:0] r7_data;
 
     register_file RF (
         .clock(clock),
@@ -39,8 +38,7 @@ module register_file_tb;
         .rd_addr(rd_addr),
         .data(data),
         .rs_data(rs_data),
-        .rt_data(rt_data),
-        .r7_data(r7_data)
+        .rt_data(rt_data)
     );
     
     // test variables

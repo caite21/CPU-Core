@@ -22,6 +22,7 @@
 
 module register_file(
     input clock,
+    input reset,
     input write,
     input [2:0] rs_addr,
     input [2:0] rt_addr,
@@ -29,7 +30,7 @@ module register_file(
     input [15:0] data,
     output reg [15:0] rs_data,
     output reg [15:0] rt_data,
-    output wire [15:0] r7_data
+    output [15:0] r7_data
     );
     
     reg [15:0] registers [0:7];
@@ -37,8 +38,19 @@ module register_file(
     assign r7_data = registers[7];
     
     always @ (posedge clock) begin
-        if (write) 
+        if (reset) begin
+            registers[0] <= 0;
+            registers[1] <= 0;
+            registers[2] <= 0;
+            registers[3] <= 0;
+            registers[4] <= 0;
+            registers[5] <= 0;
+            registers[6] <= 0;
+            registers[7] <= 0;
+        end
+        else if (write) begin
             registers[rd_addr] <= data;
+        end
         else begin
             rs_data <= registers[rs_addr];
             rt_data <= registers[rt_addr];

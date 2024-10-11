@@ -29,7 +29,6 @@ module mux_2to1 (
         case (sel)
             1'b0: out = in0;
             1'b1: out = in1;
-            default: out = 16'bx;
         endcase
     end
 endmodule

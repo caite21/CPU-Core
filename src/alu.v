@@ -32,8 +32,8 @@ module alu(
         case (select) 
             4'b0000: out <= in0 + in1;
             4'b0001: out <= in0 - in1;
-            4'b0010: out <= in0 * in1;
-            4'b0011: out <= in0 / in1;
+            4'b0010: out <= in0 + in1; // rm
+            4'b0011: out <= in0 + in1; // rm
             4'b0100: out <= in0 & in1;
             4'b0101: out <= in0 | in1;
             4'b0110: out <= in0 ^ in1;
@@ -45,7 +45,7 @@ module alu(
             4'b1100: out <= in0 - in1;
             4'b1110: out <= in0 - in1;
             4'b1111: out <= in0 - in1;
-            default: out <= 8'bx;
+            default: out <= 16'b0;
         endcase
     end
 endmodule

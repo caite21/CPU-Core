@@ -17,6 +17,7 @@
 // Revision 1.0 - 8-bit width
 // Revision 2.0 - 16-bit width
 // Revision 2.1 - mux before rf data input; mem_sel instead of data_mem
+// Revision 2.2 - control unit is connected to separate program memory
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
@@ -24,12 +25,13 @@
 
 module control_unit
     #(
-        PC_WIDTH = 6
+        parameter PC_WIDTH = 6
     )(
         input clock,
         input reset,
         input zero_flag,
         input pos_flag,
+        input [15:0] PM_data,
         output reg rf_write,
         output reg [2:0] rs_addr,
         output reg [2:0] rt_addr,
@@ -67,14 +69,6 @@ module control_unit
                     BxT = 4'b1110, // BLT if imm_sel = 0 BGT if imm_sel = 1
                     J = 4'b1111;
 
-    // For fetching and decoding instruction
-    wire [15:0] PM_data;
-    program_memory #(
-        .ADDR_WIDTH(PC_WIDTH)
-    ) PM (
-        .addr(PC),
-        .data_out(PM_data)
-    );
     reg [15:0] instr;
     reg [3:0] opcode;
     reg [10:0] imm_addr;
@@ -82,19 +76,18 @@ module control_unit
     
     
     always @ (posedge clock) begin
-        if (PC == (1 << PC_WIDTH) - 1) begin
-            next_state <= STOP;
-        end
-        else if (reset == 1) begin
+//        if (PC == (1 << PC_WIDTH) - 1) begin
+//            next_state <= STOP;
+//        end
+//        else 
+        if (reset == 1) begin
             PC <= 0;
-            instr <= 0;
-            opcode <= 0;
             rf_write <= 0;
             rs_addr <= 0;
             rt_addr <= 0;
             rd_addr <= 0;
             imm_data <= 16'b0;
-            alu_sel <= 4'b1111;
+            alu_sel <= 4'b0000;
             mem_write <= 0;
             mem_sel <= 1'b0;
             imm_addr <= 11'b0;
@@ -172,19 +165,12 @@ module control_unit
                                         next_state <= FETCH;
                                     end
                                 J: begin
-                                    PC <= imm_addr;
+                                    PC <= 0 + imm_addr;
                                     next_state <= FETCH;
                                 end
                                 default: begin
                                     rf_write <= 0;
-                                    rs_addr <= 0;
-                                    rt_addr <= 0;
-                                    rd_addr <= 0;
-                                    imm_data <= 16'b0;
-                                    alu_sel <= 4'b1111;
                                     mem_write <= 0;
-                                    mem_sel <= 1'b0;
-                                    imm_addr <= 11'b0;
                                     next_state <= FETCH;
                                 end
                             endcase
@@ -192,16 +178,14 @@ module control_unit
                     end
                 MEMORY: begin
                         rf_write <= 0;
-                        case(opcode)
-                            LD: begin
-                                    mem_write <= 0;
-                                    next_state <= WRITEBACK;
-                                end
-                            ST: begin
-                                    mem_write <= 1;
-                                    next_state <= FETCH;
-                                end
-                        endcase
+                        if (opcode == LD) begin
+                            mem_write <= 0;
+                            next_state <= WRITEBACK;
+                        end
+                        else begin // ST
+                            mem_write <= 1;
+                            next_state <= FETCH;
+                        end 
                     end
                 WRITEBACK: begin
                         rf_write <= 1;
@@ -211,9 +195,6 @@ module control_unit
                 default: begin
                         rf_write <= 0; 
                         mem_write <= 0; 
-                        instr <= 0;
-                        PC <= 0;
-                        opcode <= 0;
                     end
             endcase
         end

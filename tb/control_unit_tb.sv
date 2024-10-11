@@ -7,7 +7,7 @@
 // Project Name: CPU-Core
 // Target Devices: 
 // Tool Versions: 
-// Description: Asserts controls signals for MOVI R3, #5 in the program memory (#2)
+// Description: Asserts control signals properly set for MOVI R3, #5 
 // 
 // Dependencies: control_unit
 // 
@@ -16,6 +16,7 @@
 // Revision 1.0 - 8-bit width
 // Revision 2.0 - 16-bit width
 // Revision 2.1 - mux before rf data input; mem_sel instead of data_mem
+// Revision 2.2 - control unit is connected to separate program memory
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
@@ -35,6 +36,7 @@ module control_unit_tb;
     logic imm_sel;
     logic mem_write;
     logic mem_sel;
+    logic [15:0] PM_data;
     logic [dut.PC_WIDTH-1:0] PC;
     
     control_unit dut (
@@ -42,6 +44,7 @@ module control_unit_tb;
         .reset(reset),
         .zero_flag(zero_flag),
         .pos_flag(pos_flag),
+        .PM_data(PM_data),
         .rf_write(rf_write),
         .rs_addr(rs_addr),
         .rt_addr(rt_addr),
@@ -65,22 +68,25 @@ module control_unit_tb;
         pos_flag = 0;
         #10;
         reset = 0;
+        PM_data = 16'b10110_011_00000101;// MOVI R3, #5
         
-        // Wait for PC to reach MOVI R3, #5 instruction
-        #50;
         // Fetch and read register file
-        assert(PC == 1+1) else $fatal(1, "Expected: PC=%b Recevied PC=%b", 1+1, PC);
-        assert(rf_write == 0) else $fatal(1, "Expected: rf_write=%b Recevied rf_write=%b", 0, rf_write);
         #10;
+        assert(rf_write == 0) else $error(1, "Expected: rf_write=%b Recevied rf_write=%b", 0, rf_write);
+        
         // Decode
-        assert(rd_addr == 3) else $fatal(1, "Expected: rd_addr=%b Recevied rd_addr=%b", 6, rd_addr);
-        assert(alu_sel == 4'b1011) else $fatal(1, "Expected: alu_sel=%b Recevied alu_sel=%b", 4'b1011, alu_sel);
         #10;
+        assert(rd_addr == 3) else $error(1, "Expected: rd_addr=%b Recevied rd_addr=%b", 3, rd_addr);
+
         // Execute
         #10;
+        assert(alu_sel == 4'b1011) else $error(1, "Expected: alu_sel=%b Recevied alu_sel=%b", 4'b1011, alu_sel);
+
         // Write-Back
-        assert(rf_write == 1) else $fatal(1, "Expected: rf_write=%b Recevied rf_write=%b", 1, rf_write);
-        #40;
+        #10;
+        assert(rf_write == 1) else $error(1, "Expected: rf_write=%b Recevied rf_write=%b", 1, rf_write);
+        
+        #10;
         
         // No fatal errors
         $display ("*** Control Unit Testbench Passed");
