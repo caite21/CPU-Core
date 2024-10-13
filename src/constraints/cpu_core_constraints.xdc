@@ -11,7 +11,7 @@ create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports { c
 
 
 #set_input_delay -max 8.0 [get_ports {reset}] -clock [get_clocks sys_clk_pin]
-set_input_delay -min 0.5 [get_ports {reset}] -clock [get_clocks sys_clk_pin]
+#set_input_delay -min 0.5 [get_ports {reset}] -clock [get_clocks sys_clk_pin]
 
 
 #set_output_delay -max 8.0 [get_ports {PC_out[0]}] -clock [get_clocks sys_clk_pin]
@@ -20,12 +20,12 @@ set_input_delay -min 0.5 [get_ports {reset}] -clock [get_clocks sys_clk_pin]
 #set_output_delay -max 8.0 [get_ports {PC_out[3]}] -clock [get_clocks sys_clk_pin]
 #set_output_delay -max 8.0 [get_ports {PC_out[4]}] -clock [get_clocks sys_clk_pin]
 #set_output_delay -max 8.0 [get_ports {PC_out[5]}] -clock [get_clocks sys_clk_pin]
-set_output_delay -min 0.5 [get_ports {PC_out[0]}] -clock [get_clocks sys_clk_pin]
-set_output_delay -min 0.5 [get_ports {PC_out[1]}] -clock [get_clocks sys_clk_pin]
-set_output_delay -min 0.5 [get_ports {PC_out[2]}] -clock [get_clocks sys_clk_pin]
-set_output_delay -min 0.5 [get_ports {PC_out[3]}] -clock [get_clocks sys_clk_pin]
-set_output_delay -min 0.5 [get_ports {PC_out[4]}] -clock [get_clocks sys_clk_pin]
-set_output_delay -min 0.5 [get_ports {PC_out[5]}] -clock [get_clocks sys_clk_pin]
+#set_output_delay -min 0.5 [get_ports {PC_out[0]}] -clock [get_clocks sys_clk_pin]
+#set_output_delay -min 0.5 [get_ports {PC_out[1]}] -clock [get_clocks sys_clk_pin]
+#set_output_delay -min 0.5 [get_ports {PC_out[2]}] -clock [get_clocks sys_clk_pin]
+#set_output_delay -min 0.5 [get_ports {PC_out[3]}] -clock [get_clocks sys_clk_pin]
+#set_output_delay -min 0.5 [get_ports {PC_out[4]}] -clock [get_clocks sys_clk_pin]
+#set_output_delay -min 0.5 [get_ports {PC_out[5]}] -clock [get_clocks sys_clk_pin]
 
 
 ##Switches

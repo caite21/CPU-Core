@@ -68,10 +68,10 @@ module control_unit_tb;
         pos_flag = 0;
         #10;
         reset = 0;
-        PM_data = 16'b10110_011_00000101;// MOVI R3, #5
+        PM_data = 16'b10100_011_00000101;// MOVI R3, #5
         
         // Fetch and read register file
-        #10;
+        #20;
         assert(rf_write == 0) else $error(1, "Expected: rf_write=%b Recevied rf_write=%b", 0, rf_write);
         
         // Decode
@@ -80,7 +80,7 @@ module control_unit_tb;
 
         // Execute
         #10;
-        assert(alu_sel == 4'b1011) else $error(1, "Expected: alu_sel=%b Recevied alu_sel=%b", 4'b1011, alu_sel);
+        assert(alu_sel == 4'b1010) else $error(1, "Expected: alu_sel=%b Recevied alu_sel=%b", 4'b1011, alu_sel);
 
         // Write-Back
         #10;
@@ -89,7 +89,7 @@ module control_unit_tb;
         #10;
         
         // No fatal errors
-        $display ("*** Control Unit Testbench Passed");
+        $display ("\n--- Testbench Result: %m Passed\n");
         $finish;
     end
 endmodule

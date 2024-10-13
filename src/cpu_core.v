@@ -74,7 +74,6 @@ module cpu_core
     
     datapath dp (
         .clock(clock),
-        .reset(reset),
         .rf_write(rf_write),
         .rs_addr(rs_addr),
         .rt_addr(rt_addr),

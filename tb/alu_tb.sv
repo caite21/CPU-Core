@@ -33,7 +33,7 @@ module alu_tb;
 
     initial begin
         a = 13;
-        b = 6;
+        b = 4;
         
         sel = 4'b0000;
         #2 assert(out == (a + b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
@@ -42,10 +42,10 @@ module alu_tb;
         #2 assert(out == (a - b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
 
         #5 sel = 4'b0010;
-//        #2 assert(out == (a * b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
+        #2 assert(out == (a << b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
 
         #5 sel = 4'b0011;
-//        #2 assert(out == (a / b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
+        #2 assert(out == (a >> b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
 
         #5 sel = 4'b0100;
         #2 assert(out == (a & b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
@@ -57,24 +57,18 @@ module alu_tb;
         #2 assert(out == (a ^ b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
 
         #5 sel = 4'b0111;
-        #2 assert(out == (a << b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
+        #2 assert(out == (a - b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
 
         #5 sel = 4'b1000;
-        #2 assert(out == (a >> b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
-
-        #5 sel = 4'b1011;
         #2 assert(out == b) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
 
-        #5 sel = 4'b1100;
-        #2 assert(out == (a - b)) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
- 
         #5 sel = 4'b1111;
-//        #2 assert(out == 0) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
+        #2 assert(out == b) else $fatal(1, "Unexpected result: sel=%b a=%b b=%b out=%b", sel, a, b, out);
  
         #5;
         
          // No fatal errors
-        $display ("*** ALU Testbench Passed");
+        $display ("\n--- Testbench Result: %m Passed\n");
         $finish;
     end
 

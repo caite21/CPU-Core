@@ -1,31 +1,36 @@
+# Runs all simulations in the project and prints output to stdout
+# and logs final result of whether the testbench passed in log.txt.
 
-set_msg_config -severity INFO -suppress
 
-# Run behavioral simulations
-puts "\nStarting pm"
-launch_simulation -simset [get_filesets sim_pm ] 
-close_sim
+# Output time to log file
+set log_file [open "C:/Users/caite/Documents/VivadoProjects/CPU/log.txt" a]
+set current_time [clock format [clock seconds] -format "%Y-%m-%d %H:%M:%S"]
+puts $log_file "\n$current_time Run All Simulations"
 
-puts "\nStarting rf"
-launch_simulation -simset [get_filesets sim_rf ]
-close_sim
+# Get list of simulation sources
+set sim_list [get_filesets sim*]
 
-puts "\nStarting alu"
-launch_simulation -simset [get_filesets sim_alu ]
-close_sim
+# Suppress INFO log_files
+set_msg_config -severity {INFO} -suppress
 
-puts "\nStarting datpath"
-launch_simulation -simset [get_filesets sim_dp ]
-close_sim
+# Run all simulations and log final result
+for {set i 0} {$i < [llength $sim_list]} {incr i} {
+	launch_simulation -simset [get_filesets [lindex $sim_list $i] ] 
+	close_sim
 
-puts "\nStarting control_unit"
-launch_simulation -simset [get_filesets sim_cu ]
-close_sim
+	# Log whether testbench passed
+	set temp_log [open "C:/Users/caite/Documents/VivadoProjects/CPU/CPU.sim/[lindex $sim_list $i]/behav/xsim/simulate.log" r]
+	set log_data [read $temp_log]
+	if {[regexp {Testbench Result: .* Passed} $log_data] && ![regexp {(Error|Fatal)} $log_data]} {
+	    puts $log_file "$current_time [lindex $sim_list $i]\tPassed"
+	} else {
+	    puts $log_file "$current_time [lindex $sim_list $i]\tFAILED"
+	}
+	close $temp_log
+}
 
-puts "\nStarting cpu_core"
-launch_simulation -simset [get_filesets sim_cpu_core ]
-close_sim
 
-reset_msg_config -severity INFO -suppress
+close $log_file
+reset_msg_config -severity {INFO} -suppress
 
-puts "\n\nSimulation complete for all testbenches\n"
+puts "\n\nAll Behavioral Simulations Complete\n"

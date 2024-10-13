@@ -30,23 +30,23 @@ module program_memory_tb;
         // Test: first instruction
         addr = 0;
         #1;
-        assert(out == 16'b10110_010_00000011) else $fatal(1, "Unexpected instruction: addr=%b out=%b", addr, out);
+        assert(out == 16'b10100_010_00000011) else $fatal(1, "Unexpected instruction: addr=%b out=%b", addr, out);
         #4;
         
-        // Test: middle instruction
+        // Test: second instruction
         addr = 1;
         #1;
-        assert(out == 16'b10110_011_00000101) else $fatal(1, "Unexpected instruction: addr=%b out=%b", addr, out);
+        assert(out == 16'b10100_011_00000101) else $fatal(1, "Unexpected instruction: addr=%b out=%b", addr, out);
         #4;
         
-        // Test: last (empty) instruction
+        // Test: last (null) instruction
         addr = (1 << dut.ADDR_WIDTH) - 1;
         #1;
-        assert(out == 16'b0) else $fatal(1, "Unexpected instruction: addr=%b out=%b", addr, out);
+        assert(out == 16'hFFFF) else $fatal(1, "Unexpected instruction: addr=%b out=%b", addr, out);
         #4;
         
         // No fatal errors
-        $display ("*** Program Memory Testbench Passed");
+        $display ("\n--- Testbench Result: Program Memory Passed\n");
         $finish;
     end
 endmodule

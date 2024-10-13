@@ -20,15 +20,14 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module datapath_tb;
-    reg clock, reset, rf_write, mem_write, imm_sel, mem_sel;
+    reg clock, rf_write, mem_write, imm_sel, mem_sel;
     reg [2:0] rs_addr, rt_addr, rd_addr;
-    reg [15:0] imm_data;
+    reg [15:0] imm_data, r7_data;
     reg [3:0] alu_sel;
     wire zero_flag, pos_flag;
 
     datapath dut (
         .clock(clock),
-        .reset(reset),
         .rf_write(rf_write),
         .rs_addr(rs_addr),
         .rt_addr(rt_addr),
@@ -39,7 +38,8 @@ module datapath_tb;
         .mem_write(mem_write),
         .mem_sel(mem_sel),
         .zero_flag(zero_flag),
-        .pos_flag(pos_flag)
+        .pos_flag(pos_flag),
+        .r7_data(r7_data)
     );
 
     always #5 clock = ~clock;
@@ -47,7 +47,6 @@ module datapath_tb;
     initial begin
         // Initialize signals
         clock = 0;
-        reset = 1;
         rf_write = 0;
         mem_write = 0;
         rs_addr = 3'b000;
@@ -57,9 +56,7 @@ module datapath_tb;
         alu_sel = 4'b0000;
         imm_sel = 0;
         mem_sel = 1'b0;
-        
-        #10 reset = 0;
-        #10; 
+        #20; 
         
         // Instruction: 16'b10110_111_00001000; // MOVI R7, #8 
         // Decode
@@ -77,11 +74,11 @@ module datapath_tb;
         rf_write = 1; 
         #50; 
         // Test 
-        assert(dut.rf.r7_data == 16'd5) else $fatal(1, "Test 1: Fail");
+        assert(r7_data == 16'd5) else $fatal(1, "Fail");
 
         #50;
         // No fatal errors
-        $display ("*** Datapath Testbench Passed");
+        $display ("\n--- Testbench Result: %m Passed\n");
         $finish;
     end
 endmodule

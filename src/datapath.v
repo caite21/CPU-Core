@@ -23,7 +23,6 @@
 
 module datapath(
     input clock,
-    input reset,
     input rf_write,
     input [2:0] rs_addr,
     input [2:0] rt_addr,
@@ -54,7 +53,6 @@ module datapath(
     
     register_file rf (
         .clock(clock),
-        .reset(reset),
         .write(rf_write),
         .rs_addr(rs_addr),
         .rt_addr(rt_addr),

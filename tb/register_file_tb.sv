@@ -73,7 +73,7 @@ module register_file_tb;
         #10;
         
         // No fatal errors
-        $display ("*** Register File Testbench Passed");
+        $display ("\n--- Testbench Result: %m Passed\n");
         $finish;
     end
 endmodule
